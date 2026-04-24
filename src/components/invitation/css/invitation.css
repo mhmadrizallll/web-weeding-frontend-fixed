@@ -1,0 +1,281 @@
+/* invitation.css */
+
+.inv-shell {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(244, 114, 182, 0.16), transparent 22%),
+    radial-gradient(circle at top right, rgba(168, 85, 247, 0.14), transparent 22%),
+    radial-gradient(circle at bottom center, rgba(251, 191, 36, 0.12), transparent 28%),
+    linear-gradient(135deg, #fffafc 0%, #fdf4ff 48%, #eef2ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.inv-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+  pointer-events: none;
+}
+
+.inv-bg {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(90px);
+  opacity: 0.55;
+  animation: floatInvitationOrb 12s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.inv-bg-1 {
+  width: 280px;
+  height: 280px;
+  background: rgba(236, 72, 153, 0.22);
+  top: 40px;
+  left: -40px;
+}
+
+.inv-bg-2 {
+  width: 320px;
+  height: 320px;
+  background: rgba(124, 58, 237, 0.18);
+  top: 80px;
+  right: -60px;
+  animation-delay: 2s;
+}
+
+.inv-bg-3 {
+  width: 300px;
+  height: 300px;
+  background: rgba(245, 158, 11, 0.14);
+  bottom: 0;
+  left: 35%;
+  animation-delay: 4s;
+}
+
+@keyframes floatInvitationOrb {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) translateX(12px) scale(1.04);
+  }
+}
+
+.inv-state-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 760px;
+  border-radius: 36px;
+  padding: 44px 32px;
+  text-align: center;
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.82),
+    rgba(255,255,255,0.62)
+  );
+  border: 1px solid rgba(255,255,255,0.72);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.inv-state-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at top right, rgba(236, 72, 153, 0.08), transparent 24%),
+    radial-gradient(circle at bottom left, rgba(124, 58, 237, 0.08), transparent 24%);
+  pointer-events: none;
+}
+
+.inv-state-card.error {
+  max-width: 820px;
+}
+
+.inv-loader-ring {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 22px;
+  border-radius: 999px;
+  border: 5px solid rgba(15, 23, 42, 0.08);
+  border-top-color: #a855f7;
+  animation: invitationSpin 1s linear infinite;
+}
+
+@keyframes invitationSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.inv-state-icon {
+  width: 74px;
+  height: 74px;
+  margin: 0 auto 18px;
+  border-radius: 24px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.inv-state-icon.soft-pink {
+  background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+  color: #db2777;
+}
+
+.inv-state-icon.soft-red {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #dc2626;
+}
+
+.inv-state-kicker {
+  position: relative;
+  z-index: 2;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7c3aed;
+  margin: 0 0 12px;
+}
+
+.inv-state-title {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1.08;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.inv-state-desc {
+  position: relative;
+  z-index: 2;
+  margin: 18px auto 0;
+  max-width: 620px;
+  color: #64748b;
+  line-height: 1.95;
+  font-size: 15px;
+}
+
+.inv-loading-steps {
+  position: relative;
+  z-index: 2;
+  margin-top: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.step-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.step-chip.active {
+  background: linear-gradient(135deg, #ede9fe, #fce7f3);
+  color: #7c3aed;
+}
+
+.inv-state-divider {
+  width: 100%;
+  max-width: 520px;
+  height: 1px;
+  margin: 30px auto 24px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(15, 23, 42, 0.08),
+    transparent
+  );
+}
+
+.inv-state-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.meta-box {
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  text-align: left;
+}
+
+.meta-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.meta-value {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  word-break: break-word;
+}
+
+.invitation-page-fade {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.invitation-page-fade.ready {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+  .inv-shell {
+    padding: 16px;
+  }
+
+  .inv-state-card {
+    padding: 32px 20px;
+    border-radius: 28px;
+  }
+
+  .inv-loader-ring {
+    width: 62px;
+    height: 62px;
+  }
+
+  .inv-state-title {
+    font-size: 2rem;
+  }
+
+  .inv-state-meta {
+    grid-template-columns: 1fr;
+  }
+}

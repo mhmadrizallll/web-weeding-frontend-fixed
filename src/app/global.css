@@ -1,0 +1,12 @@
+@import 'tailwindcss/preflight';
+
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #faf7f2;
+  color: #1f1f1f;
+}
