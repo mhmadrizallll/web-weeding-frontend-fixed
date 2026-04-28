@@ -55,9 +55,7 @@ export default function CreateInvitationForm() {
     story: "",
 
     // ✅ NEW STORY IMAGES
-    story_image_1: "",
-    story_image_2: "",
-    story_image_3: "",
+    story_images: [] as string[],
 
     music_url: "",
     location_name: "",
@@ -68,9 +66,7 @@ export default function CreateInvitationForm() {
     is_published: false,
 
     cover_image: "",
-    gallery_image_1: "",
-    gallery_image_2: "",
-    gallery_image_3: "",
+    gallery_images: [] as string[],
   });
 
   const [loading, setLoading] = useState(false);
@@ -78,17 +74,12 @@ export default function CreateInvitationForm() {
 
   const [uploading, setUploading] = useState({
     cover: false,
-    gallery1: false,
-    gallery2: false,
-    gallery3: false,
     music: false,
-
-    // ✅ NEW
     groom: false,
     bride: false,
-    story1: false,
-    story2: false,
-    story3: false,
+
+    gallery_images: false,
+    story_images: false,
   });
 
   const templateOptions = [
@@ -165,29 +156,9 @@ export default function CreateInvitationForm() {
 
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    field:
-      | "cover_image"
-      | "gallery_image_1"
-      | "gallery_image_2"
-      | "gallery_image_3"
-      | "music_url"
-      | "groom_image"
-      | "bride_image"
-      | "story_image_1"
-      | "story_image_2"
-      | "story_image_3",
+    field: "cover_image" | "music_url" | "groom_image" | "bride_image",
     type: "image" | "music",
-    loadingKey:
-      | "cover"
-      | "gallery1"
-      | "gallery2"
-      | "gallery3"
-      | "music"
-      | "groom"
-      | "bride"
-      | "story1"
-      | "story2"
-      | "story3",
+    loadingKey: "cover" | "music" | "groom" | "bride",
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -209,6 +180,34 @@ export default function CreateInvitationForm() {
       alert("Upload gagal");
     } finally {
       setUploading((prev) => ({ ...prev, [loadingKey]: false }));
+    }
+  };
+
+  const handleMultiUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "gallery_images" | "story_images",
+  ) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    try {
+      setUploading((prev) => ({ ...prev, [field]: true }));
+
+      const uploadPromises = Array.from(files).map(
+        (file) => uploadService.uploadImage(file), // ✅ FIX: pakai image doang
+      );
+
+      const urls = await Promise.all(uploadPromises);
+
+      setForm((prev) => ({
+        ...prev,
+        [field]: [...(prev[field] as string[]), ...urls],
+      }));
+    } catch (error) {
+      console.error(error);
+      alert("Upload gagal");
+    } finally {
+      setUploading((prev) => ({ ...prev, [field]: false }));
     }
   };
 
@@ -257,37 +256,30 @@ export default function CreateInvitationForm() {
         groom_name: form.groom_name,
         bride_name: form.bride_name,
 
-        // ✅ TAMBAH INI
+        // ✅ single upload
         groom_image: form.groom_image,
         bride_image: form.bride_image,
+        cover_image: form.cover_image,
+        music_url: form.music_url,
 
+        // ✅ text
         cover_title: form.cover_title,
         cover_subtitle: form.cover_subtitle,
         quote: form.quote,
         story: form.story,
 
-        // ✅ TAMBAH INI JUGA
-        story_images: [
-          form.story_image_1,
-          form.story_image_2,
-          form.story_image_3,
-        ].filter(Boolean),
+        // 🔥 MULTI (langsung array, no filter manual lagi)
+        story_images: form.story_images || [],
+        gallery_images: form.gallery_images || [],
 
-        music_url: form.music_url,
+        // event
         location_name: form.location_name,
         location_address: form.location_address,
         google_maps_url: form.google_maps_url,
         event_date: form.event_date,
         event_time: form.event_time,
-        is_published: form.is_published,
-        cover_image: form.cover_image,
 
-        // ✅ FIX UTAMA (hapus stringify)
-        gallery_images: [
-          form.gallery_image_1,
-          form.gallery_image_2,
-          form.gallery_image_3,
-        ].filter(Boolean),
+        is_published: form.is_published,
       };
 
       await invitationService.create(payload);
@@ -304,13 +296,10 @@ export default function CreateInvitationForm() {
     return templateOptions.find((t) => t.key === form.template_key);
   }, [form.template_key]);
 
-  const galleryCount = [
-    form.gallery_image_1,
-    form.gallery_image_2,
-    form.gallery_image_3,
-  ].filter(Boolean).length;
+  const galleryCount = form.gallery_images?.length || 0;
 
   const selectedOwner = users.find((u) => u.id === form.user_id) || authUser;
+
   const canAssignUser = isAdminRole(authUser?.role);
 
   return (
@@ -573,34 +562,41 @@ export default function CreateInvitationForm() {
                     placeholder="Tulis quote, ayat, atau caption romantis..."
                   />
                 </div>
-                {[
-                  ["story_image_1", "story1", "Story Image 1"],
-                  ["story_image_2", "story2", "Story Image 2"],
-                  ["story_image_3", "story3", "Story Image 3"],
-                ].map(([field, key, label]) => (
-                  <div className="upload-card" key={field}>
-                    <h4>{label}</h4>
+                <div className="upload-card">
+                  <div className="upload-card-head">
+                    <div className="upload-card-title">
+                      <ImageIcon size={18} />
+                      <span>Story Images</span>
+                    </div>
+                  </div>
 
+                  <label className="upload-dropzone compact">
+                    <UploadCloud size={20} />
+                    <span>Upload multiple images</span>
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) =>
-                        handleFileUpload(e, field as any, "image", key as any)
-                      }
+                      multiple
+                      onChange={(e) => handleMultiUpload(e, "story_images")}
+                      hidden
                     />
+                  </label>
 
-                    {uploading[key as keyof typeof uploading] && (
-                      <p>Uploading...</p>
-                    )}
+                  {uploading.story_images && (
+                    <p className="uploading-text">
+                      <Loader2 size={16} className="spin" />
+                      Uploading...
+                    </p>
+                  )}
 
-                    {form[field as keyof typeof form] && (
-                      <img
-                        src={form[field as keyof typeof form] as string}
-                        className="media-preview"
-                      />
-                    )}
+                  <div
+                    style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}
+                  >
+                    {form.story_images.map((img, i) => (
+                      <img key={i} src={img} className="media-preview" />
+                    ))}
                   </div>
-                ))}
+                </div>
                 <div className="field-full">
                   <label>Cerita / Story (Opsional)</label>
                   <textarea
@@ -734,56 +730,41 @@ export default function CreateInvitationForm() {
                   )}
                 </div>
 
-                {[
-                  ["gallery_image_1", "gallery1", "Gallery 1"],
-                  ["gallery_image_2", "gallery2", "Gallery 2"],
-                  ["gallery_image_3", "gallery3", "Gallery 3"],
-                ].map(([field, loadingKey, label]) => (
-                  <div className="upload-card" key={field}>
-                    <div className="upload-card-head">
-                      <div className="upload-card-title">
-                        <ImageIcon size={18} />
-                        <span>{label}</span>
-                      </div>
+                <div className="upload-card">
+                  <div className="upload-card-head">
+                    <div className="upload-card-title">
+                      <ImageIcon size={18} />
+                      <span>Gallery Images</span>
                     </div>
-
-                    <label className="upload-dropzone compact">
-                      <UploadCloud size={20} />
-                      <span>Upload image</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) =>
-                          handleFileUpload(
-                            e,
-                            field as
-                              | "gallery_image_1"
-                              | "gallery_image_2"
-                              | "gallery_image_3",
-                            "image",
-                            loadingKey as "gallery1" | "gallery2" | "gallery3",
-                          )
-                        }
-                        hidden
-                      />
-                    </label>
-
-                    {uploading[loadingKey as keyof typeof uploading] && (
-                      <p className="uploading-text">
-                        <Loader2 size={16} className="spin" />
-                        Uploading...
-                      </p>
-                    )}
-
-                    {form[field as keyof typeof form] && (
-                      <img
-                        src={form[field as keyof typeof form] as string}
-                        alt={label}
-                        className="media-preview"
-                      />
-                    )}
                   </div>
-                ))}
+
+                  <label className="upload-dropzone compact">
+                    <UploadCloud size={20} />
+                    <span>Upload multiple images</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => handleMultiUpload(e, "gallery_images")}
+                      hidden
+                    />
+                  </label>
+
+                  {uploading.gallery_images && (
+                    <p className="uploading-text">
+                      <Loader2 size={16} className="spin" />
+                      Uploading...
+                    </p>
+                  )}
+
+                  <div
+                    style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}
+                  >
+                    {form.gallery_images.map((img, i) => (
+                      <img key={i} src={img} className="media-preview" />
+                    ))}
+                  </div>
+                </div>
 
                 <div className="upload-card upload-card-music">
                   <div className="upload-card-head">

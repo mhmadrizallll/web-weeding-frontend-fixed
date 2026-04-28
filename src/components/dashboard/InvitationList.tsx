@@ -90,8 +90,8 @@ export default function InvitationList() {
         filter === "all"
           ? true
           : filter === "published"
-          ? !!item.is_published
-          : !item.is_published;
+            ? !!item.is_published
+            : !item.is_published;
 
       return matchSearch && matchFilter;
     });
@@ -107,7 +107,7 @@ export default function InvitationList() {
 
   const handleDelete = async (id: number) => {
     const confirmDelete = window.confirm(
-      "Yakin ingin menghapus invitation ini?"
+      "Yakin ingin menghapus invitation ini?",
     );
     if (!confirmDelete) return;
 
@@ -138,7 +138,7 @@ export default function InvitationList() {
   const handleCopyLink = async (
     slug: string,
     guestName?: string,
-    key?: string
+    key?: string,
   ) => {
     try {
       const link = getPersonalInvitationUrl(slug, guestName);
@@ -161,8 +161,14 @@ export default function InvitationList() {
     }
   };
 
-  const handleOpenWhatsapp = (slug: string, guestName?: string) => {
-    const waUrl = getWhatsappShareUrl(slug, guestName);
+  const handleOpenWhatsapp = (
+    slug: string,
+    guestName?: string,
+    groomName?: string,
+    brideName?: string,
+  ) => {
+    const waUrl = getWhatsappShareUrl(slug, guestName, groomName, brideName);
+
     window.open(waUrl, "_blank");
   };
 
@@ -205,7 +211,10 @@ export default function InvitationList() {
 
             <h1 className="hero-title">
               Kelola Undangan
-              <span className="hero-gradient-text"> Modern, Elegan & Menjual</span>
+              <span className="hero-gradient-text">
+                {" "}
+                Modern, Elegan & Menjual
+              </span>
             </h1>
 
             <p className="hero-description">
@@ -393,7 +402,7 @@ export default function InvitationList() {
                         <Link
                           href={`/invite/${item.slug}`}
                           target="_blank"
-                          className="btn btn-soft"
+                          className="btn-card btn-soft"
                         >
                           <Eye size={18} />
                           <span>Preview</span>
@@ -403,7 +412,7 @@ export default function InvitationList() {
                           <>
                             <Link
                               href={`/dashboard/edit/${item.id}`}
-                              className="btn btn-dark"
+                              className="btn-card btn-dark"
                             >
                               <Pencil size={18} />
                               <span>Edit</span>
@@ -412,7 +421,7 @@ export default function InvitationList() {
                             <button
                               onClick={() => handleDelete(item.id)}
                               disabled={deleteLoadingId === item.id}
-                              className="btn btn-danger"
+                              className="btn-card btn-danger"
                             >
                               <Trash2 size={18} />
                               <span>
@@ -478,7 +487,7 @@ export default function InvitationList() {
                               handleCopyLink(
                                 item.slug,
                                 guestName,
-                                `personal-${item.id}`
+                                `personal-${item.id}`,
                               )
                             }
                             className="mini-btn gradient"
@@ -495,7 +504,12 @@ export default function InvitationList() {
                       <div className="share-actions">
                         <button
                           onClick={() =>
-                            handleOpenWhatsapp(item.slug, guestName)
+                            handleOpenWhatsapp(
+                              item.slug,
+                              guestName,
+                              item.groom_name,
+                              item.bride_name,
+                            )
                           }
                           className="btn btn-whatsapp"
                         >
@@ -507,7 +521,7 @@ export default function InvitationList() {
                           href={personalUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="btn btn-soft"
+                          className="btn-card btn-soft"
                         >
                           <Eye size={18} />
                           <span>Preview Personal</span>

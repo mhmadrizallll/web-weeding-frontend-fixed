@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -21,8 +23,19 @@ export default function DashboardHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const menus = useMemo(
-    () => [
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, []);
+
+  const isAdmin = user?.role === "admin" || user?.role === "superadmin";
+
+  const menus = useMemo(() => {
+    const baseMenus = [
       {
         label: "Dashboard",
         href: "/dashboard",
@@ -34,18 +47,22 @@ export default function DashboardHeader() {
         icon: Mail,
       },
       {
-        label: "Buat Undangan",
-        href: "/dashboard/create",
-        icon: PlusCircle,
-      },
-      {
         label: "RSVP Dashboard",
         href: "/dashboard/rsvps",
         icon: Users,
       },
-    ],
-    []
-  );
+    ];
+
+    if (isAdmin) {
+      baseMenus.splice(2, 0, {
+        label: "Buat Undangan",
+        href: "/dashboard/create",
+        icon: PlusCircle,
+      });
+    }
+
+    return baseMenus;
+  }, [isAdmin]);
 
   const pageTitleMap: Record<string, string> = {
     "/dashboard": "Dashboard Overview",
@@ -81,7 +98,9 @@ export default function DashboardHeader() {
 
                 <div className="dashboard-header__brand-text">
                   <p className="dashboard-header__eyebrow">Admin Panel</p>
-                  <h1 className="dashboard-header__title">Dashboard Undangan</h1>
+                  <h1 className="dashboard-header__title">
+                    Dashboard Undangan
+                  </h1>
                 </div>
 
                 {/* HAMBURGER */}
@@ -104,13 +123,33 @@ export default function DashboardHeader() {
             </div>
 
             <div className="dashboard-header__actions desktop-actions">
-              <Link
-                href="/dashboard/create"
-                className="header-btn header-btn--primary"
-              >
-                <PlusCircle size={18} />
-                <span>Buat Undangan</span>
-              </Link>
+              {/* Nama User */}
+              <div className="header-user">
+                <div className="header-user__avatar">
+                  {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                </div>
+
+                <div className="header-user__meta">
+                  <span className="header-user__name">
+                    {user?.name || "User"}
+                  </span>
+                  <span className="header-user__role">
+                    {isAdmin ? "Super Admin" : "User"}
+                  </span>
+                </div>
+
+                <div className="header-user__status-dot" />
+              </div>
+
+              {isAdmin && (
+                <Link
+                  href="/dashboard/create"
+                  className="header-btn header-btn--primary"
+                >
+                  <PlusCircle size={18} />
+                  <span>Buat Undangan</span>
+                </Link>
+              )}
 
               <button
                 onClick={handleLogout}
@@ -150,7 +189,8 @@ export default function DashboardHeader() {
               {menus.map((menu) => {
                 const isActive =
                   pathname === menu.href ||
-                  (menu.href !== "/dashboard" && pathname.startsWith(menu.href));
+                  (menu.href !== "/dashboard" &&
+                    pathname.startsWith(menu.href));
 
                 const Icon = menu.icon;
 
@@ -174,14 +214,16 @@ export default function DashboardHeader() {
             </nav>
 
             <div className="dashboard-mobile-actions">
-              <Link
-                href="/dashboard/create"
-                className="header-btn header-btn--primary"
-                onClick={handleCloseMenu}
-              >
-                <PlusCircle size={18} />
-                <span>Buat Undangan</span>
-              </Link>
+              {isAdmin && (
+                <Link
+                  href="/dashboard/create"
+                  className="header-btn header-btn--primary"
+                  onClick={handleCloseMenu}
+                >
+                  <PlusCircle size={18} />
+                  <span>Buat Undangan</span>
+                </Link>
+              )}
 
               <button
                 onClick={handleLogout}

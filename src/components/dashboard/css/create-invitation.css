@@ -3,7 +3,7 @@
   --create-muted: #64748b;
   --create-border: rgba(15, 23, 42, 0.08);
   --create-white: rgba(255, 255, 255, 0.78);
-  --create-shadow: 0 24px 70px rgba(15, 23, 42, 0.10);
+  --create-shadow: 0 24px 70px rgba(15, 23, 42, 0.1);
 }
 
 .create-invitation-page {
@@ -11,9 +11,21 @@
   min-height: 100vh;
   padding: 28px 20px 50px;
   background:
-    radial-gradient(circle at top left, rgba(236, 72, 153, 0.12), transparent 22%),
-    radial-gradient(circle at top right, rgba(124, 58, 237, 0.14), transparent 22%),
-    radial-gradient(circle at bottom center, rgba(245, 158, 11, 0.10), transparent 24%),
+    radial-gradient(
+      circle at top left,
+      rgba(236, 72, 153, 0.12),
+      transparent 22%
+    ),
+    radial-gradient(
+      circle at top right,
+      rgba(124, 58, 237, 0.14),
+      transparent 22%
+    ),
+    radial-gradient(
+      circle at bottom center,
+      rgba(245, 158, 11, 0.1),
+      transparent 24%
+    ),
     linear-gradient(135deg, #f8fafc 0%, #fdf4ff 50%, #eef2ff 100%);
   overflow: hidden;
 }
@@ -54,7 +66,8 @@
 }
 
 @keyframes createFloatOrb {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) translateX(0) scale(1);
   }
   50% {
@@ -83,8 +96,8 @@
   gap: 8px;
   padding: 10px 14px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.78);
-  border: 1px solid rgba(15,23,42,0.06);
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(15, 23, 42, 0.06);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -113,8 +126,8 @@
   height: 52px;
   padding: 0 20px;
   border-radius: 18px;
-  border: 1px solid rgba(15,23,42,0.08);
-  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(14px);
   color: #334155;
   font-weight: 700;
@@ -145,10 +158,10 @@
   border-radius: 32px;
   background: linear-gradient(
     135deg,
-    rgba(255,255,255,0.82),
-    rgba(255,255,255,0.66)
+    rgba(255, 255, 255, 0.82),
+    rgba(255, 255, 255, 0.66)
   );
-  border: 1px solid rgba(255,255,255,0.65);
+  border: 1px solid rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(20px);
   box-shadow: var(--create-shadow);
 }
@@ -236,7 +249,7 @@
   width: 100%;
   border-radius: 20px;
   border: 1px solid var(--create-border);
-  background: rgba(255,255,255,0.85);
+  background: rgba(255, 255, 255, 0.85);
   padding: 15px 18px;
   font-size: 15px;
   color: var(--create-text);
@@ -263,8 +276,8 @@
 }
 
 .template-option {
-  border: 1px solid rgba(15,23,42,0.08);
-  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.72);
   border-radius: 24px;
   padding: 18px;
   text-align: left;
@@ -279,8 +292,12 @@
 
 .template-option.active {
   border-color: rgba(124, 58, 237, 0.28);
-  background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(236,72,153,0.06));
-  box-shadow: 0 18px 34px rgba(124, 58, 237, 0.10);
+  background: linear-gradient(
+    135deg,
+    rgba(124, 58, 237, 0.08),
+    rgba(236, 72, 153, 0.06)
+  );
+  box-shadow: 0 18px 34px rgba(124, 58, 237, 0.1);
 }
 
 .template-option-top {
@@ -295,7 +312,7 @@
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: rgba(124,58,237,0.08);
+  background: rgba(124, 58, 237, 0.08);
   color: #7c3aed;
 }
 
@@ -331,7 +348,7 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  box-shadow: 0 16px 30px rgba(124, 58, 237, 0.20);
+  box-shadow: 0 16px 30px rgba(124, 58, 237, 0.2);
   transition: all 0.25s ease;
 }
 
@@ -348,8 +365,8 @@
 .upload-card {
   border-radius: 24px;
   padding: 18px;
-  background: rgba(255,255,255,0.72);
-  border: 1px solid rgba(15,23,42,0.06);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(15, 23, 42, 0.06);
 }
 
 .upload-card-large {
@@ -380,7 +397,11 @@
   min-height: 170px;
   border-radius: 24px;
   border: 1.5px dashed rgba(124, 58, 237, 0.22);
-  background: linear-gradient(135deg, rgba(124,58,237,0.05), rgba(236,72,153,0.04));
+  background: linear-gradient(
+    135deg,
+    rgba(124, 58, 237, 0.05),
+    rgba(236, 72, 153, 0.04)
+  );
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -423,7 +444,7 @@
   object-fit: cover;
   border-radius: 20px;
   margin-top: 16px;
-  border: 1px solid rgba(15,23,42,0.06);
+  border: 1px solid rgba(15, 23, 42, 0.06);
 }
 
 .cover-preview {
@@ -440,8 +461,8 @@
   align-items: center;
   gap: 16px;
   border-radius: 24px;
-  background: rgba(255,255,255,0.72);
-  border: 1px solid rgba(15,23,42,0.06);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(15, 23, 42, 0.06);
   padding: 18px;
   cursor: pointer;
 }
@@ -524,8 +545,8 @@
 }
 
 .btn-secondary {
-  border: 1px solid rgba(15,23,42,0.08);
-  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.72);
   color: #334155;
 }
 
@@ -567,8 +588,8 @@
   margin-top: 22px;
   border-radius: 26px;
   overflow: hidden;
-  border: 1px solid rgba(15,23,42,0.06);
-  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .preview-cover img {
@@ -600,8 +621,8 @@
   gap: 12px;
   padding: 14px 16px;
   border-radius: 20px;
-  background: rgba(255,255,255,0.7);
-  border: 1px solid rgba(15,23,42,0.05);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(15, 23, 42, 0.05);
 }
 
 .preview-meta-item span {
@@ -621,8 +642,8 @@
   margin-top: 20px;
   border-radius: 22px;
   padding: 16px 18px;
-  background: rgba(255,255,255,0.72);
-  border: 1px solid rgba(15,23,42,0.05);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(15, 23, 42, 0.05);
 }
 
 .preview-status-box {
@@ -640,12 +661,12 @@
 
 .status-dot.published {
   background: #10b981;
-  box-shadow: 0 0 0 6px rgba(16,185,129,0.12);
+  box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.12);
 }
 
 .status-dot.draft {
   background: #f59e0b;
-  box-shadow: 0 0 0 6px rgba(245,158,11,0.12);
+  box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.12);
 }
 
 .preview-status-box p,
@@ -664,8 +685,8 @@
 .create-error-box {
   border-radius: 22px;
   padding: 16px 18px;
-  background: rgba(239,68,68,0.08);
-  border: 1px solid rgba(239,68,68,0.12);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.12);
   color: #b91c1c;
   font-weight: 700;
 }
@@ -722,4 +743,20 @@
   .create-page-header h1 {
     font-size: 2rem;
   }
+}
+
+.image-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.btn-remove-image {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
 }

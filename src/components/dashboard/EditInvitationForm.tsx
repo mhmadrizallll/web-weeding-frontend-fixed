@@ -31,9 +31,7 @@ interface EditInvitationFormProps {
   id: string;
 }
 
-export default function EditInvitationForm({
-  id,
-}: EditInvitationFormProps) {
+export default function EditInvitationForm({ id }: EditInvitationFormProps) {
   const router = useRouter();
 
   const [users, setUsers] = useState<User[]>([]);
@@ -45,12 +43,22 @@ export default function EditInvitationForm({
     slug: "",
     event_type: "wedding",
     title: "Undangan Pernikahan",
+
     groom_name: "",
     bride_name: "",
+
+    // ✅ INI YANG HILANG
+    groom_image: "",
+    bride_image: "",
+
     cover_title: "The Wedding Of",
     cover_subtitle: "",
     quote: "",
     story: "",
+
+    story_images: [] as string[],
+    gallery_images: [] as string[],
+
     music_url: "",
     location_name: "",
     location_address: "",
@@ -59,9 +67,6 @@ export default function EditInvitationForm({
     event_time: "",
     is_published: false,
     cover_image: "",
-    gallery_image_1: "",
-    gallery_image_2: "",
-    gallery_image_3: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -69,17 +74,21 @@ export default function EditInvitationForm({
 
   const [uploading, setUploading] = useState<{
     cover: boolean;
-    gallery1: boolean;
-    gallery2: boolean;
-    gallery3: boolean;
+    gallery_images: boolean;
+    story_images: boolean;
+    groom_image: boolean; // ✅ tambah
+    bride_image: boolean; // ✅ tambah
     music: boolean;
   }>({
     cover: false,
-    gallery1: false,
-    gallery2: false,
-    gallery3: false,
+    gallery_images: false,
+    story_images: false,
+    groom_image: false, // ✅ tambah
+    bride_image: false, // ✅ tambah
     music: false,
   });
+
+  // const galleryCount = form.gallery_images?.length || 0;
 
   const templateOptions = [
     {
@@ -121,16 +130,67 @@ export default function EditInvitationForm({
     }));
   };
 
+  const handleMultiUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "gallery_images" | "story_images",
+    loadingKey: "gallery" | "story",
+  ) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    try {
+      setUploading((prev) => ({ ...prev, [loadingKey]: true }));
+
+      const uploadPromises = Array.from(files).map((file) =>
+        uploadService.uploadImage(file),
+      );
+
+      const urls = await Promise.all(uploadPromises);
+
+      setForm((prev) => {
+        const existing = prev[field] || [];
+
+        // 🔥 optional: limit max 10
+        const merged = [...existing, ...urls].slice(0, 10);
+
+        return {
+          ...prev,
+          [field]: merged,
+        };
+      });
+
+      // 🔥 reset input biar bisa upload file yg sama lagi
+      e.target.value = "";
+    } catch (error) {
+      console.error(error);
+      alert("Upload gagal");
+    } finally {
+      setUploading((prev) => ({ ...prev, [loadingKey]: false }));
+    }
+  };
+
+  const handleRemoveImage = (
+    index: number,
+    field: "gallery_images" | "story_images",
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleRemoveSingle = (field: "cover_image") => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: "",
+    }));
+  };
+
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    field:
-      | "cover_image"
-      | "gallery_image_1"
-      | "gallery_image_2"
-      | "gallery_image_3"
-      | "music_url",
+    field: "cover_image" | "music_url" | "groom_image" | "bride_image",
     type: "image" | "music",
-    loadingKey: "cover" | "gallery1" | "gallery2" | "gallery3" | "music"
+    loadingKey: "cover" | "music" | "groom" | "bride",
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -147,6 +207,9 @@ export default function EditInvitationForm({
         ...prev,
         [field]: url,
       }));
+
+      // 🔥 reset input
+      e.target.value = "";
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Upload gagal, coba lagi.");
@@ -158,16 +221,14 @@ export default function EditInvitationForm({
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value, type } = e.target;
 
     setForm((prev) => ({
       ...prev,
       [name]:
-        type === "checkbox"
-          ? (e.target as HTMLInputElement).checked
-          : value,
+        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }));
   };
 
@@ -207,10 +268,26 @@ export default function EditInvitationForm({
           title: invitation.title || "Undangan Pernikahan",
           groom_name: invitation.groom_name || "",
           bride_name: invitation.bride_name || "",
+
+          // ✅ jangan lupa ini (kemarin sempet hilang)
+          groom_image: invitation.groom_image || "",
+          bride_image: invitation.bride_image || "",
+
           cover_title: invitation.cover_title || "The Wedding Of",
           cover_subtitle: invitation.cover_subtitle || "",
           quote: invitation.quote || "",
           story: invitation.story || "",
+
+          // ✅ FIX DI SINI
+          gallery_images: galleryImages,
+
+          // ✅ kalau ada story_images juga
+          story_images: Array.isArray(invitation.story_images)
+            ? invitation.story_images
+            : typeof invitation.story_images === "string"
+              ? JSON.parse(invitation.story_images)
+              : [],
+
           music_url: invitation.music_url || "",
           location_name: invitation.location_name || "",
           location_address: invitation.location_address || "",
@@ -221,14 +298,11 @@ export default function EditInvitationForm({
           event_time: invitation.event_time || "",
           is_published: !!invitation.is_published,
           cover_image: invitation.cover_image || "",
-          gallery_image_1: galleryImages[0] || "",
-          gallery_image_2: galleryImages[1] || "",
-          gallery_image_3: galleryImages[2] || "",
         });
       } catch (err: any) {
         console.error(err);
         setError(
-          err?.response?.data?.message || "Gagal memuat data invitation"
+          err?.response?.data?.message || "Gagal memuat data invitation",
         );
       } finally {
         setPageLoading(false);
@@ -245,34 +319,40 @@ export default function EditInvitationForm({
 
     try {
       const payload = {
-        user_id: form.assigned_user_id
-          ? Number(form.assigned_user_id)
-          : null,
+        user_id: form.assigned_user_id ? Number(form.assigned_user_id) : null,
+
         template_key: form.template_key,
         slug: form.slug.trim(),
         event_type: form.event_type,
         title: form.title.trim(),
+
         groom_name: form.groom_name.trim(),
         bride_name: form.bride_name.trim(),
+
+        // ✅ jangan lupa ini (sering kelupaan)
+        groom_image: form.groom_image,
+        bride_image: form.bride_image,
+
         cover_title: form.cover_title.trim(),
         cover_subtitle: form.cover_subtitle.trim(),
         quote: form.quote.trim(),
         story: form.story.trim(),
+
+        // ✅ ARRAY
+        gallery_images: JSON.stringify(form.gallery_images),
+        story_images: JSON.stringify(form.story_images),
+
         music_url: form.music_url.trim(),
+
         location_name: form.location_name.trim(),
         location_address: form.location_address.trim(),
         google_maps_url: form.google_maps_url.trim(),
+
         event_date: form.event_date || null,
         event_time: form.event_time.trim(),
+
         is_published: form.is_published,
         cover_image: form.cover_image.trim(),
-        gallery_images: JSON.stringify(
-          [
-            form.gallery_image_1,
-            form.gallery_image_2,
-            form.gallery_image_3,
-          ].filter(Boolean)
-        ),
       };
 
       await invitationService.update(Number(id), payload);
@@ -289,11 +369,7 @@ export default function EditInvitationForm({
     return templateOptions.find((t) => t.key === form.template_key);
   }, [form.template_key]);
 
-  const galleryCount = [
-    form.gallery_image_1,
-    form.gallery_image_2,
-    form.gallery_image_3,
-  ].filter(Boolean).length;
+  const galleryCount = form.gallery_images?.length || 0;
 
   const assignedUserName =
     users.find((u) => String(u.id) === form.assigned_user_id)?.name || "-";
@@ -426,6 +502,74 @@ export default function EditInvitationForm({
                   </div>
                 </div>
 
+                <div className="upload-card">
+                  <h4>Foto Mempelai Pria</h4>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      handleFileUpload(e, "groom_image", "image", "groom");
+                      e.target.value = "";
+                    }}
+                  />
+
+                  {uploading.groom && <p>Uploading...</p>}
+
+                  {form.groom_image && (
+                    <div className="image-wrapper">
+                      <img
+                        src={form.groom_image}
+                        alt="Groom"
+                        className="media-preview"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setForm((prev) => ({ ...prev, groom_image: "" }))
+                        }
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="upload-card">
+                  <h4>Foto Mempelai Wanita</h4>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      handleFileUpload(e, "bride_image", "image", "bride");
+                      e.target.value = "";
+                    }}
+                  />
+
+                  {uploading.bride && <p>Uploading...</p>}
+
+                  {form.bride_image && (
+                    <div className="image-wrapper">
+                      <img
+                        src={form.bride_image}
+                        alt="Bride"
+                        className="media-preview"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setForm((prev) => ({ ...prev, bride_image: "" }))
+                        }
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 <div>
                   <label>Nama Mempelai Pria</label>
                   <input
@@ -538,6 +682,37 @@ export default function EditInvitationForm({
                     rows={4}
                     placeholder="Tulis quote, ayat, atau caption romantis..."
                   />
+                </div>
+
+                <div className="upload-card">
+                  <h4>Story Images</h4>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) =>
+                      handleMultiUpload(e, "story_images", "image", "story")
+                    }
+                  />
+
+                  {uploading.story && <p>Uploading...</p>}
+
+                  <div className="gallery-preview-grid">
+                    {form.story_images.map((img, i) => (
+                      <div key={i} className="image-wrapper">
+                        <img src={img} className="media-preview" />
+
+                        <button
+                          type="button"
+                          className="btn-remove-image"
+                          onClick={() => handleRemoveImage(i, "story_images")}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="field-full">
@@ -663,64 +838,74 @@ export default function EditInvitationForm({
                   )}
 
                   {form.cover_image && (
-                    <img
-                      src={form.cover_image}
-                      alt="Cover Preview"
-                      className="media-preview cover-preview"
-                    />
+                    <div className="image-wrapper">
+                      <img
+                        src={form.cover_image}
+                        alt="Cover Preview"
+                        className="media-preview cover-preview"
+                      />
+
+                      <button
+                        type="button"
+                        className="btn-remove-image"
+                        onClick={() => handleRemoveSingle("cover_image")}
+                      >
+                        ✕
+                      </button>
+                    </div>
                   )}
                 </div>
 
-                {[
-                  ["gallery_image_1", "gallery1", "Gallery 1"],
-                  ["gallery_image_2", "gallery2", "Gallery 2"],
-                  ["gallery_image_3", "gallery3", "Gallery 3"],
-                ].map(([field, loadingKey, label]) => (
-                  <div className="upload-card" key={field}>
-                    <div className="upload-card-head">
-                      <div className="upload-card-title">
-                        <ImageIcon size={18} />
-                        <span>{label}</span>
-                      </div>
+                <div className="upload-card">
+                  <div className="upload-card-head">
+                    <div className="upload-card-title">
+                      <ImageIcon size={18} />
+                      <span>Gallery Images</span>
                     </div>
-
-                    <label className="upload-dropzone compact">
-                      <UploadCloud size={20} />
-                      <span>Upload image</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) =>
-                          handleFileUpload(
-                            e,
-                            field as
-                              | "gallery_image_1"
-                              | "gallery_image_2"
-                              | "gallery_image_3",
-                            "image",
-                            loadingKey as "gallery1" | "gallery2" | "gallery3"
-                          )
-                        }
-                        hidden
-                      />
-                    </label>
-
-                    {uploading[loadingKey as keyof typeof uploading] && (
-                      <p className="uploading-text">
-                        <Loader2 size={16} className="spin" />
-                        Uploading...
-                      </p>
-                    )}
-
-                    {form[field as keyof typeof form] && (
-                      <img
-                        src={form[field as keyof typeof form] as string}
-                        alt={label}
-                        className="media-preview"
-                      />
-                    )}
                   </div>
-                ))}
+
+                  <label className="upload-dropzone compact">
+                    <UploadCloud size={20} />
+                    <span>Upload multiple images</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) =>
+                        handleMultiUpload(
+                          e,
+                          "gallery_images",
+                          "image",
+                          "gallery",
+                        )
+                      }
+                      hidden
+                    />
+                  </label>
+
+                  {uploading.gallery && (
+                    <p className="uploading-text">
+                      <Loader2 size={16} className="spin" />
+                      Uploading...
+                    </p>
+                  )}
+
+                  <div className="gallery-preview-grid">
+                    {form.gallery_images.map((img, i) => (
+                      <div key={i} className="image-wrapper">
+                        <img src={img} className="media-preview" />
+
+                        <button
+                          type="button"
+                          className="btn-remove-image"
+                          onClick={() => handleRemoveImage(i, "gallery_images")}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
                 <div className="upload-card upload-card-music">
                   <div className="upload-card-head">
@@ -803,11 +988,7 @@ export default function EditInvitationForm({
                 Kembali
               </button>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary"
-              >
+              <button type="submit" disabled={loading} className="btn-primary">
                 {loading ? (
                   <>
                     <Loader2 size={18} className="spin" />
@@ -874,7 +1055,9 @@ export default function EditInvitationForm({
                   <Sparkles size={17} />
                   <div>
                     <span>Template</span>
-                    <strong>{selectedTemplate?.title || "Belum dipilih"}</strong>
+                    <strong>
+                      {selectedTemplate?.title || "Belum dipilih"}
+                    </strong>
                   </div>
                 </div>
 
@@ -890,7 +1073,9 @@ export default function EditInvitationForm({
                   <Music4 size={17} />
                   <div>
                     <span>Music</span>
-                    <strong>{form.music_url ? "Sudah ada" : "Belum ada"}</strong>
+                    <strong>
+                      {form.music_url ? "Sudah ada" : "Belum ada"}
+                    </strong>
                   </div>
                 </div>
               </div>
